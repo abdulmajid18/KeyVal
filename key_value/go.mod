@@ -1,4 +1,4 @@
-module key_value.io/rozz/key_value
+module github.com/abdulmajid18/keyVal/key_value
 
 go 1.18
 
