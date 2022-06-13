@@ -46,7 +46,7 @@ type UserModel struct {
 // automatically generated
 func (m UserModel) Insert(user *User) error {
 	query := `
-			INSERT INTO users (username, email, db_name)
+			INSERT INTO users (username, email, dbname)
 			VALUES ($1, $2, $3)
 			RETURNING id, created_at, version`
 

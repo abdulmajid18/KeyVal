@@ -41,14 +41,16 @@ func getDataBaseEnvVariables() string {
 	password := "PASSWORD"
 	dbname := "DBNAME"
 
-	err := godotenv.Load(".env")
+	currentWorkDirectory, _ := os.Getwd()
+	file := currentWorkDirectory + "/cmd/api/.env"
+	err := godotenv.Load(file)
 	if err != nil {
 		log.Println("An error occured loading .env")
 	}
 	role = os.Getenv(role)
 	password = os.Getenv(password)
 	dbname = os.Getenv(dbname)
-
+	fmt.Printf("postgres://%s:%s@localhost/%s", role, password, dbname)
 	return fmt.Sprintf("postgres://%s:%s@localhost/%s", role, password, dbname)
 
 }
