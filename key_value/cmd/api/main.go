@@ -6,11 +6,12 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/abdulmajid18/keyVal/key_value/internal/data"
+	"github.com/abdulmajid18/keyVal/key_value/internal/mailer"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -21,12 +22,21 @@ type Config struct {
 	port int
 	env  string
 	db   dbConfig
+	smtp smtp
 }
-
+type smtp struct {
+	host     string
+	port     int
+	username string
+	password string
+	sender   string
+}
 type application struct {
 	config Config
 	logger *log.Logger
 	models data.Models
+	mailer mailer.Mailer
+	wg     sync.WaitGroup
 }
 
 type dbConfig struct {
@@ -50,7 +60,7 @@ func getDataBaseEnvVariables() string {
 	role = os.Getenv(role)
 	password = os.Getenv(password)
 	dbname = os.Getenv(dbname)
-	fmt.Printf("postgres://%s:%s@localhost/%s", role, password, dbname)
+
 	return fmt.Sprintf("postgres://%s:%s@localhost/%s", role, password, dbname)
 
 }
@@ -95,6 +105,17 @@ func main() {
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.StringVar(&cfg.db.maxIdleTime, "db-max-idle-time", "15m", "PostgreSQL max connection idle time")
+
+	// Read the SMTP server configuration settings into the config struct, using the
+	// Mailtrap settings as the default values. IMPORTANT: If you're following along,
+	// make sure to replace the default values for smtp-username and smtp-password
+	// with your own Mailtrap credentials.
+	flag.StringVar(&cfg.smtp.host, "smtp-host", "smtp.mailtrap.io", "SMTP host")
+	flag.IntVar(&cfg.smtp.port, "smtp-port", 2525, "SMTP port")
+	flag.StringVar(&cfg.smtp.username, "smtp-username", "2457cf20620e26", "SMTP username")
+	flag.StringVar(&cfg.smtp.password, "smtp-password", "e89e04c5e4baeb", "SMTP password")
+	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "Greenlight <no-reply@greenlight.alexedwards.net>", "SMTP sender")
+
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
@@ -108,15 +129,11 @@ func main() {
 		config: cfg,
 		logger: logger,
 		models: data.NewModels(db),
+		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender),
 	}
-	fmt.Println("Starting Server!")
-	routes := app.routes()
-	server := &http.Server{
-		Handler: routes,
-		Addr:    "127.0.0.1:8000",
+	err = app.serve()
+	if err != nil {
+		logger.Fatal(err)
 	}
-	logger.Printf("starting %s server on %s", cfg.env, server.Addr)
-	err = server.ListenAndServe()
-	logger.Fatal(err)
 
 }

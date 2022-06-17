@@ -7,4 +7,13 @@ require (
 	github.com/joho/godotenv v1.4.0
 )
 
-require github.com/lib/pq v1.10.2
+require (
+	github.com/go-mail/mail/v2 v2.3.0
+	github.com/lib/pq v1.10.2
+	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e
+)
+
+require (
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/mail.v2 v2.3.1 // indirect
+)
