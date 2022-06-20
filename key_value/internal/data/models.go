@@ -9,15 +9,17 @@ import (
 // )
 
 type Models struct {
-	Users UserModel
-	Put   PutModel
-	Token TokenModel
+	Users      UserModel
+	Put        PutModel
+	Token      TokenModel
+	Permission PermissionModel // Add a new Permissions field.
 }
 
 func NewModels(db *sql.DB) Models {
 	return Models{
-		Users: UserModel{DB: db},
-		Put:   PutModel{DB: db},
-		Token: TokenModel{DB: db},
+		Users:      UserModel{DB: db},
+		Put:        PutModel{DB: db},
+		Token:      TokenModel{DB: db},
+		Permission: PermissionModel{DB: db},
 	}
 }
