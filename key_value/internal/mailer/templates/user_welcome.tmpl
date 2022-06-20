@@ -1,17 +1,22 @@
 File: internal/mailer/templates/user_welcome.tmpl
 
-{{define "subject"}}Welcome to Greenlight!{{end}}
+{{define "subject"}}Welcome to RozzDB!{{end}}
 
 {{define "plainBody"}}
 Hi,
 
-Thanks for signing up for a Greenlight account. We're excited to have you on board!
+Thanks for signing up for a RozzDB account. We're excited to have you on board!
 
-For future reference, your user ID number is {{.ID}}    {{.UserName}}.
+For future reference, your user ID number is {{.userID}} {{.userName}} .
+
+Please send a request to the `PUT localhost:8000/v1/users/activated` endpoint with the following JSON
+body to activate your account:
+
+{"token": "{{.activationToken}}"}
 
 Thanks,
 
-The Greenlight Team
+The RozzDB Team
 {{end}}
 
 {{define "htmlBody"}}
@@ -24,10 +29,16 @@ The Greenlight Team
 
 <body>
     <p>Hi,</p>
-    <p>Thanks for signing up for a Greenlight account. We're excited to have you on board!</p>
-    <p>For future reference, your user ID number is {{.ID}}.</p>
+    <p>Thanks for signing up for a RozzDB account. We're excited to have you on board!</p>
+    <p>For future reference, your user ID number is {{.userID}} {{.userName}}.</p>
+    <p>Please send a request to the <code>PUT /v1/users/activated</code> endpoint with the
+    following JSON body to activate your account:</p>
+    <pre><code>
+    {"token": "{{.activationToken}}"}
+    </code></pre>
+    <p>Please note that this is a one-time use token and it will expire in 3 days.</p>
     <p>Thanks,</p>
-    <p>The Greenlight Team</p>
+    <p>The RozzDB Team</p>
 </body>
 
 </html>

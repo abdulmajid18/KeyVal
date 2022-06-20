@@ -32,7 +32,7 @@ func ValidatePutData(v *validator.Validator, data *PutData) {
 
 func (m PutModel) CheckExistenceDB(secretKey string) (bool, error) {
 	var db string
-	query := `SELECT dbname FROM  users WHERE dbname = $1`
+	query := `SELECT dbname FROM  users WHERE key = $1`
 
 	err := m.DB.QueryRow(query, secretKey).Scan(&db)
 

@@ -12,8 +12,9 @@ func (app *application) routes() http.Handler {
 	router.MethodNotAllowedHandler = http.HandlerFunc(app.methodNotAllowedResponse)
 	router.HandleFunc("/v1/healthcheck", app.healthcheckHandler).Methods("GET")
 	router.HandleFunc("/v1/register_user", app.registerUserHandler).Methods("POST")
-	router.HandleFunc("/v1/register_user", app.registerUserHandler).Methods("POST")
-	router.HandleFunc("/v1/put/{secret_key}", app.PutHandler).Methods("POST")
-	router.HandleFunc("/v1/get/{secret_key}", app.GetHandler).Methods("POST")
-	return app.recoverPanic(router)
+	router.HandleFunc("/v1/users/activated", app.activatedUserHandler).Methods("PUT")
+	router.HandleFunc("/v1/tokens/authentication", app.createAuthenticationTokenHandler).Methods("POST")
+	router.HandleFunc("/v1/put/{secret_key}", app.requireActivatedUser(app.PutHandler)).Methods("POST")
+	router.HandleFunc("/v1/get/{secret_key}", app.requireActivatedUser(app.GetHandler)).Methods("POST")
+	return app.recoverPanic(app.authenticate(router))
 }

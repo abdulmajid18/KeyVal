@@ -66,7 +66,7 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst int
 // header map containing any additional HTTP headers we want to include in the response.
 func (app *application) writeJSON(w http.ResponseWriter, status int, data interface{}, headers http.Header) error {
 	// Encode the data into JSON, returnng the error if there was one
-	js, err := json.Marshal(data)
+	js, err := json.MarshalIndent(data, "", "\t")
 	if err != nil {
 		return err
 	}
