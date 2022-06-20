@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"sync"
 	"time"
 
@@ -19,10 +20,12 @@ import (
 const version = "1.0"
 
 type Config struct {
-	port int
-	env  string
-	db   dbConfig
-	smtp smtp
+	port    int
+	env     string
+	db      dbConfig
+	smtp    smtp
+	cors    cors
+	limiter limiter
 }
 type smtp struct {
 	host     string
@@ -44,6 +47,20 @@ type dbConfig struct {
 	maxOpenConns int
 	maxIdleConns int
 	maxIdleTime  string
+}
+
+// Add a cors struct and trustedOrigins field with the type []string.
+type cors struct {
+	trustedOrigins []string
+}
+
+// Add a new limiter struct containing fields for the requests-per-second and burst
+// values, and a boolean field which we can use to enable/disable rate limiting
+// altogether.
+type limiter struct {
+	rps     float64
+	burst   int
+	enabled bool
 }
 
 func getDataBaseEnvVariables() string {
@@ -115,6 +132,23 @@ func main() {
 	flag.StringVar(&cfg.smtp.username, "smtp-username", "2457cf20620e26", "SMTP username")
 	flag.StringVar(&cfg.smtp.password, "smtp-password", "e89e04c5e4baeb", "SMTP password")
 	flag.StringVar(&cfg.smtp.sender, "smtp-sender", "RozzDB <no-reply@rozzdb.rozay.net>", "SMTP sender")
+
+	// Use the flag.Func() function to process the -cors-trusted-origins command line
+	// flag. In this we use the strings.Fields() function to split the flag value into a
+	// slice based on whitespace characters and assign it to our config struct.
+	// Importantly, if the -cors-trusted-origins flag is not present, contains the empty
+	// string, or contains only whitespace, then strings.Fields() will return an empty
+	// []string slice.
+	flag.Func("cors-trusted-origins", "Trusted CORS origins (space separated)", func(val string) error {
+		cfg.cors.trustedOrigins = strings.Fields(val)
+		return nil
+	})
+
+	// Create command line flags to read the setting values into the config struct.
+	// Notice that we use true as the default for the 'enabled' setting?
+	flag.Float64Var(&cfg.limiter.rps, "limiter-rps", 2, "Rate limiter maximum requests per second")
+	flag.IntVar(&cfg.limiter.burst, "limiter-burst", 4, "Rate limiter maximum burst")
+	flag.BoolVar(&cfg.limiter.enabled, "limiter-enabled", true, "Enable rate limiter")
 
 	flag.Parse()
 

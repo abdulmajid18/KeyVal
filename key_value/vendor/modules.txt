@@ -16,6 +16,9 @@ github.com/lib/pq/scram
 ## explicit; go 1.17
 golang.org/x/crypto/bcrypt
 golang.org/x/crypto/blowfish
+# golang.org/x/time v0.0.0-20220609170525-579cf78fd858
+## explicit
+golang.org/x/time/rate
 # gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc
 ## explicit
 gopkg.in/alexcesaro/quotedprintable.v3
