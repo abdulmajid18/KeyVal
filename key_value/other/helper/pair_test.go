@@ -1,6 +1,9 @@
 package helper
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestValidate(t *testing.T) {
 	key1 := "1234567890123456789012345678901"
@@ -13,18 +16,19 @@ func TestValidate(t *testing.T) {
 
 	err := pair.Validate()
 
-	if err != nil {
+	if err == nil {
 		t.Errorf("Should throw an error")
 	}
 
 	err = NewPair(key1, "ss").Validate()
-	if err != nil {
-		t.Errorf("Shoudl throw error as key is longer than 30")
+	fmt.Println(err)
+	if err == nil {
+		t.Errorf("Should throw error as key is longer than 30")
 	}
 
 	NewPair("smallKEY", value).Validate()
-	if err != nil {
-		t.Errorf("Shoudl throw error as value is longer than 90")
+	if err == nil {
+		t.Errorf("Should throw error as value is longer than 90")
 	}
 
 }

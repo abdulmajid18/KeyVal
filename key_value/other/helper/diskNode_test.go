@@ -72,11 +72,11 @@ func TestIsLeaf(t *testing.T) {
 		t.Error("Should not return as leaf as it has children", n)
 	}
 
-	child1, err = newLeafNode(nil, blockService)
+	_, err = newLeafNode(nil, blockService)
 	if err != nil {
 		t.Error(err)
 	}
-	child2, err = newLeafNode(nil, blockService)
+	_, err = newLeafNode(nil, blockService)
 	if err != nil {
 		t.Error(err)
 	}

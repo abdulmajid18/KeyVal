@@ -7,7 +7,8 @@ import (
 )
 
 func initBlockService() *BlockService {
-	dir_path := "/home/rozz/go/src/KeyValueStore/other/helper"
+	dir_path := "/home/rozz/go/src/github.com/abdulmajid18/keyVal/key_value/other/helper/"
+
 	path := fmt.Sprintf("%s/db/test.db", dir_path)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		db_path := fmt.Sprintf("%s/db", dir_path)

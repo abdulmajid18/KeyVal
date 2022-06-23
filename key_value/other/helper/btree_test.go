@@ -7,7 +7,7 @@ import (
 )
 
 func clearDB() string {
-	path := "/home/rozz/go/src/KeyValueStore/other/helper/db/test.db"
+	path := "/home/rozz/go/src/github.com/abdulmajid18/keyVal/key_value/other/helper/db/test.db"
 	if _, err := os.Stat(path); err == nil {
 		// path/to/whatever exists
 		err := os.Remove(path)
