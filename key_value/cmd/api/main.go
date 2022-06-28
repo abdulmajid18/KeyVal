@@ -19,8 +19,6 @@ import (
 	_ "github.com/lib/pq"
 )
 
-const version = "1.0"
-
 type Config struct {
 	port    int
 	env     string
@@ -114,6 +112,12 @@ func openDB(dbConfig dbConfig) (*sql.DB, error) {
 	return db, err
 }
 
+const version = "1.0.0"
+
+// Create a buildTime variable to hold the executable binary build time. Note that this
+// must be a string type, as the -X linker flag will only work with string variables.
+var buildTime string
+
 func main() {
 	var cfg Config
 
@@ -178,6 +182,19 @@ func main() {
 	expvar.Publish("timestamp", expvar.Func(func() interface{} {
 		return time.Now().Unix()
 	}))
+
+	// Create a new version boolean flag with the default value of false.
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+	flag.Parse()
+
+	// If the version flag value is true, then print out the version number and
+	// immediately exit.
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		// Print out the contents of the buildTime variable.
+		fmt.Printf("Build time:\t%s\n", buildTime)
+		os.Exit(0)
+	}
 	app := &application{
 		config: cfg,
 		logger: logger,

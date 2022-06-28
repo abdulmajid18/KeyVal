@@ -4,7 +4,6 @@ import (
 	"errors"
 	"expvar"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/abdulmajid18/keyVal/key_value/internal/data"
 	"github.com/abdulmajid18/keyVal/key_value/internal/validator"
 	"github.com/felixge/httpsnoop" // New import
+	"github.com/tomasen/realip"    // New import
 	"golang.org/x/time/rate"
 )
 
@@ -51,21 +51,15 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Only carry out the check if rate limiting is enabled.
 		if app.config.limiter.enabled {
-			ip, _, err := net.SplitHostPort(r.RemoteAddr)
-			if err != nil {
-				app.serverErrorResponse(w, r, err)
-				return
-			}
+			// Use the realip.FromRequest() function to get the client's real IP address.
+			ip := realip.FromRequest(r)
 			mu.Lock()
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
-					// Use the requests-per-second and burst values from the config
-					// struct.
 					limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst),
 				}
 			}
 			clients[ip].lastSeen = time.Now()
-
 			if !clients[ip].limiter.Allow() {
 				mu.Unlock()
 				app.rateLimitExceededResponse(w, r)
@@ -73,7 +67,6 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 			}
 			mu.Unlock()
 		}
-
 		next.ServeHTTP(w, r)
 	})
 }
